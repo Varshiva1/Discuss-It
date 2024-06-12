@@ -8,7 +8,7 @@ function UserProfile({ match }) {
     const fetchUser = async () => {
       try {
         // Make a request to your API to fetch user data
-        const response = await axios.get(`/api/users/${match.params.userId}`);
+        const response = await axios.get(`http://localhost:5000/api/users/${match.params.userId}`);
         setUser(response.data);
       } catch (error) {
         console.error(error);

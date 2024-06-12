@@ -37,6 +37,19 @@ function DiscussionList() {
     setSearchText(e.target.value);
   };
 
+  const handleDeleteDiscussion = async (discussionId) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/discussions/${discussionId}`);
+      setDiscussions(discussions.filter(discussion => discussion._id !== discussionId));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleEditDiscussion = (discussionId) => {
+    // Handle edit functionality, e.g., redirect to edit page
+  };
+
   return (
     <div className="container mx-auto my-8">
       <h2 className="text-2xl font-bold mb-4">Discussion List</h2>
@@ -78,6 +91,20 @@ function DiscussionList() {
               <span className="font-bold">Created On:</span>{' '}
               {new Date(discussion.createdOn).toLocaleString()}
             </p>
+            <div className="mt-4 flex justify-between">
+              <button
+                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+                onClick={() => handleDeleteDiscussion(discussion._id)}
+              >
+                Delete
+              </button>
+              <button
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                onClick={() => handleEditDiscussion(discussion._id)}
+              >
+                Edit
+              </button>
+            </div>
           </div>
         ))}
       </div>

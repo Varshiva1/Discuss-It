@@ -1,4 +1,5 @@
 import express from 'express';
+import multer from 'multer';
 import {
   createDiscussion,
   updateDiscussion,
@@ -16,9 +17,12 @@ import {
   incrementViewCount,
 } from '../controllers/discussionController.js';
 
+const storage = multer.memoryStorage();
+const upload = multer({storage:storage})
+
 const router = express.Router();
 
-router.post('/creatediscussion', createDiscussion);
+router.post('/creatediscussion',upload.single('image'), createDiscussion);
 router.put('/:id', updateDiscussion);
 router.delete('/:id', deleteDiscussion);
 router.get('/all', getAllDiscussions);  // <-- Add this new route

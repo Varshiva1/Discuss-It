@@ -9,6 +9,8 @@ function UserList() {
   const [password, setPassword] = useState('');
   const [mobileNo, setMobileNo] = useState('');
 
+  const userId = localStorage.getItem('id')
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -33,7 +35,7 @@ function UserList() {
 
   const handleDelete = async (userId) => {
     try {
-      await axios.post(`/api/users/delete/${userId}`);
+      await axios.post(`http://localhost:5000/api/users/delete/${userId}`);
       setUsers(users.filter(user => user._id !== userId));
     } catch (error) {
       console.error(error);
@@ -54,7 +56,7 @@ function UserList() {
         password,
         mobileNo
       };
-      const response = await axios.post(`/api/users/update/${editUser._id}`, updatedUser);
+      const response = await axios.post(`http://localhost:5000/api/users/update/${editUser._id}`, updatedUser);
       setUsers(users.map(user => (user._id === editUser._id ? response.data : user)));
       setEditUser(null);
     } catch (error) {
@@ -79,10 +81,19 @@ function UserList() {
           {users.map((user) => (
             <li key={user._id} className="flex items-center justify-between mb-2">
               <a href={`/users/${user._id}`}>{user.name}</a>
-              <div>
+              {
+                user._id === userId? (
+                  <div>
                 <button onClick={() => handleEdit(user)} className="bg-blue-500 text-white px-3 py-1 rounded-full mr-2 hover:bg-blue-600">Edit</button>
                 <button onClick={() => handleDelete(user._id)} className="bg-red-500 text-white px-3 py-1 rounded-full hover:bg-red-600">Delete</button>
               </div>
+                ) : (
+                  <div>
+                  <button onClick={() => handleEdit(user)} className="bg-blue-500 text-white px-3 py-1 rounded-full mr-2 hover:bg-blue-600">follow</button>
+                  </div>
+                )
+}
+             
             </li>
           ))}
         </ul>

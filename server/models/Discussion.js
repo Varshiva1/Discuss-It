@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 
+
 const discussionSchema = new mongoose.Schema({
+  discussionId:{type: String,required: true},
   text: { type: String, required: true },
   image: { type: String },
   hashTags: [{ type: String }],

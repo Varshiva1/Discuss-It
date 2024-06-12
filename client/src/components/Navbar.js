@@ -6,14 +6,17 @@ function Navbar({ isAuthenticated }) {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('name');
+    localStorage.removeItem('email');
+    localStorage.removeItem('id');
     navigate('/login');
   };
-
+  const name = localStorage.getItem('name');
   return (
     <nav className="bg-gray-800 py-4">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-white font-bold text-xl">
-          My App
+          Wellcome! {name}
         </Link>
         <ul className="flex space-x-4">
           <li>

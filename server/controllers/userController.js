@@ -29,6 +29,7 @@ export const loginUser = async (req, res) => {
     try {
       const { email, password } = req.body;
       const user = await User.findOne({ email });
+      console.log("🚀 ~ loginUser ~ user:", user)
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
@@ -39,7 +40,7 @@ export const loginUser = async (req, res) => {
       const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
         expiresIn: '1d',
       });
-      res.status(200).json({ token });
+      res.status(200).json({ token,email,name:user.name,id:user._id });
     } catch (err) {
       res.status(400).json({ error: err.message });
     }
