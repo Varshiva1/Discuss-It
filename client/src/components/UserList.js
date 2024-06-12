@@ -14,9 +14,9 @@ function UserList() {
       try {
         let response;
         if (searchName) {
-          response = await axios.get(`/api/users/search?name=${searchName}`);
+          response = await axios.get(`http://localhost:5000/api/users/search?name=${searchName}`);
         } else {
-          response = await axios.get('/api/users');
+          response = await axios.get('http://localhost:5000/api/users');
         }
         setUsers(response.data);
       } catch (error) {
