@@ -41,7 +41,7 @@ function Navbar({ isAuthenticated }) {
 
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-white font-bold text-xl">
-          Wellcome! {name}
+          Welcome! {name}
         </Link>
         <ul className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4">
           <li>
@@ -61,7 +61,6 @@ function Navbar({ isAuthenticated }) {
           </li>
           {isAuthenticated && (
             <>
-              <li className="text-white">Welcome, {userName}</li>
               <li>
                 <button onClick={handleLogout} className="text-white hover:text-gray-300">
                   Logout
