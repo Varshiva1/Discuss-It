@@ -1,8 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Navbar({ isAuthenticated }) {
+  const [userName, setUserName] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const response = await axios.get('http://localhost:5000/api/user', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setUserName(response.data.name);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchUserData();
+    }
+  }, [isAuthenticated]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -11,11 +35,11 @@ function Navbar({ isAuthenticated }) {
 
   return (
     <nav className="bg-gray-800 py-4">
-      <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-white font-bold text-xl">
+      <div className="container mx-auto flex flex-col lg:flex-row justify-between items-center">
+        <Link to="/" className="text-white font-bold text-xl mb-4 lg:mb-0">
           My App
         </Link>
-        <ul className="flex space-x-4">
+        <ul className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4">
           <li>
             <Link to="/users" className="text-white hover:text-gray-300">
               User List
@@ -32,11 +56,14 @@ function Navbar({ isAuthenticated }) {
             </Link>
           </li>
           {isAuthenticated && (
-            <li>
-              <button onClick={handleLogout} className="text-white hover:text-gray-300">
-                Logout
-              </button>
-            </li>
+            <>
+              <li className="text-white">Welcome, {userName}</li>
+              <li>
+                <button onClick={handleLogout} className="text-white hover:text-gray-300">
+                  Logout
+                </button>
+              </li>
+            </>
           )}
         </ul>
       </div>
