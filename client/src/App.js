@@ -1,33 +1,44 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import Dashboard from './components/Dashboard';
+import Navbar from './components/Navbar';
+import UserList from './components/UserList';
 import CreateDiscussion from './components/CreateDiscussion';
 import DiscussionList from './components/DiscussionList';
-import UserProfile from './components/UserProfile';
-import FollowingList from './components/FollowingList';
-import FollowersList from './components/FollowersList';
-import UserList from './components/UserList';
-import DiscussionDetails from './components/DiscussionDetails';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const PrivateRoutes = () => {
+    return (
+      <>
+        <Navbar isAuthenticated={isAuthenticated} />
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/users" element={<UserList />} />
+          <Route path="/create-discussion" element={<CreateDiscussion />} />
+          <Route path="/discussions" element={<DiscussionList />} />
+        </Routes>
+      </>
+    );
+  };
+
   return (
     <Router>
       <div className="App">
-        <Navbar />
         <Routes>
-          <Route exact path="/" element={<Dashboard />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/create-discussion" element={<CreateDiscussion />} />
-          <Route path="/discussions" element={<DiscussionList />} />
-          <Route path="/users/:userId" element={<UserProfile />} />
-          <Route path="/following/:userId" element={<FollowingList />} />
-          <Route path="/followers/:userId" element={<FollowersList />} />
-          <Route path="/users" element={<UserList />} />
-          <Route path="/discussion/:discussionId" element={<DiscussionDetails />} />
+          <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
+          <Route path="/signup" element={<Signup setIsAuthenticated={setIsAuthenticated} />} />
+          <Route path="/*" element={isAuthenticated ? <PrivateRoutes /> : <Navigate to="/login" />} />
         </Routes>
       </div>
     </Router>
