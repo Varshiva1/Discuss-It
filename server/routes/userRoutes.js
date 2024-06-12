@@ -20,11 +20,9 @@ router.post('/signup', createUser);
 router.post('/login', loginUser);
 
 // Update User Route
-router.post('/users/update', updateUser);
-
+router.post('/users/update/:id', updateUser);
 // Delete User Route
-router.post('/users/delete', deleteUser);
-
+router.post('/users/delete/:id', deleteUser);
 // Get All Users Route
 router.get('/users', getAllUsers);
 

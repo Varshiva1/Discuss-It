@@ -47,37 +47,58 @@ export const loginUser = async (req, res) => {
   
 
 // Update User
+// export const updateUser = async (req, res) => {
+//     try {
+//       const { email, name, mobileNo, password } = req.body;
+//       const user = await User.findOneAndUpdate(
+//         { email },
+//         { name, mobileNo, password },
+//         { new: true, runValidators: true }
+//       );
+//       if (!user) {
+//         return res.status(404).json({ error: 'User not found' });
+//       }
+//       res.status(200).json(user);
+//     } catch (err) {
+//       res.status(400).json({ error: err.message });
+//     }
+//   };
+
 export const updateUser = async (req, res) => {
-    try {
-      const { email, name, mobileNo, password } = req.body;
-      const user = await User.findOneAndUpdate(
-        { email },
-        { name, mobileNo, password },
-        { new: true, runValidators: true }
-      );
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      res.status(200).json(user);
-    } catch (err) {
-      res.status(400).json({ error: err.message });
-    }
-  };
+  try {
+    const { name, password, mobileNo } = req.body;
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { name, password, mobileNo },
+      { new: true, runValidators: true }
+    );
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
   
   // Delete User
+  // export const deleteUser = async (req, res) => {
+  //   try {
+  //     const { email } = req.body;
+  //     const user = await User.findOneAndDelete({ email });
+  //     if (!user) {
+  //       return res.status(404).json({ error: 'User not found' });
+  //     }
+  //     res.status(200).json({ message: 'User deleted' });
+  //   } catch (err) {
+  //     res.status(400).json({ error: err.message });
+  //   }
+  // };
   export const deleteUser = async (req, res) => {
     try {
-      const { email } = req.body;
-      const user = await User.findOneAndDelete({ email });
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
+      await User.findByIdAndDelete(req.params.id);
       res.status(200).json({ message: 'User deleted' });
     } catch (err) {
       res.status(400).json({ error: err.message });
     }
   };
-
 // Get All Users
 export const getAllUsers = async (req, res) => {
   try {

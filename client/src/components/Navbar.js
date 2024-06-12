@@ -20,6 +20,11 @@ function Navbar() {
             </Link>
           </li>
           <li>
+            <Link to="/users" className="text-white hover:text-gray-300">
+              User List
+            </Link>
+          </li>
+          <li>
             <Link to="/create-discussion" className="text-white hover:text-gray-300">
               Create Discussion
             </Link>
