@@ -39,12 +39,15 @@ function DiscussionList() {
 
   const handleDeleteDiscussion = async (discussionId) => {
     try {
+
       await axios.delete(`http://localhost:5000/api/${discussionId}`);
+
       setDiscussions(discussions.filter(discussion => discussion._id !== discussionId));
     } catch (error) {
       console.error(error);
     }
   };
+
 
   const handleEditDiscussion = async (discussionId) => {
     try {
@@ -52,6 +55,7 @@ function DiscussionList() {
     } catch (error) {
       console.error(error);
     }
+
   };
 
   return (
