@@ -13,32 +13,33 @@ function App() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    console.log('Token from localStorage:', token); // Debugging
     if (token) {
       setIsAuthenticated(true);
     }
-  }, []);
+  }, []); // Only run once, on mount
 
-  const PrivateRoutes = () => {
-    return (
-      <>
-        <Navbar isAuthenticated={isAuthenticated} />
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/users" element={<UserList />} />
-          <Route path="/create-discussion" element={<CreateDiscussion />} />
-          <Route path="/discussions" element={<DiscussionList />} />
-        </Routes>
-      </>
-    );
-  };
+  const PrivateRoutes = () => (
+    <>
+      <Navbar isAuthenticated={isAuthenticated} />
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/users" element={<UserList />} />
+        <Route path="/create-discussion" element={<CreateDiscussion />} />
+        <Route path="/discussions" element={<DiscussionList />} />
+      </Routes>
+    </>
+  );
+
+  console.log('isAuthenticated:', isAuthenticated); // Debugging
 
   return (
     <Router>
       <div className="App">
         <Routes>
+          <Route path="/*" element={isAuthenticated ? <PrivateRoutes /> : <Navigate to="/login" />} />
           <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
           <Route path="/signup" element={<Signup setIsAuthenticated={setIsAuthenticated} />} />
-          <Route path="/*" element={isAuthenticated ? <PrivateRoutes /> : <Navigate to="/login" />} />
         </Routes>
       </div>
     </Router>

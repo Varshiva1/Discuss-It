@@ -5,13 +5,14 @@ function CreateDiscussion() {
   const [text, setText] = useState('');
   const [image, setImage] = useState(null);
   const [hashTags, setHashTags] = useState('');
-
+const userId = localStorage.getItem('id')
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData();
       formData.append('text', text);
       formData.append('image', image);
+      formData.append('userId', userId);
       formData.append('hashTags', hashTags.split(',').map((tag) => tag.trim()));
 
       // Make a request to your API to create a new discussion

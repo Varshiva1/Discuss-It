@@ -1,15 +1,14 @@
 // db.js
 import mongoose from 'mongoose';
 
-const MONGO_URI = 'mongodb://127.0.0.1:27017/spyne';
+const MONGO_URI = 'mongodb+srv://shivamvarun75:t468ujNMm02i6s22@voosh.5iujpus.mongodb.net/spyne?retryWrites=true&w=majority';
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(MONGO_URI, {
-    });
+    await mongoose.connect(MONGO_URI);
     console.log('MongoDB connected');
   } catch (err) {
-    console.error(err.message);
+    console.error("mongo error:",err.message);
     process.exit(1);
   }
 };

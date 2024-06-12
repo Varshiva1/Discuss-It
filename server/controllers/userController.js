@@ -28,18 +28,22 @@ export const createUser = async (req, res) => {
 export const loginUser = async (req, res) => {
     try {
       const { email, password } = req.body;
+      console.log("🚀 ~ loginUser ~ password:", password)
+      console.log("🚀 ~ loginUser ~ email:", email)
       const user = await User.findOne({ email });
+      console.log("🚀 ~ loginUser ~ user:", user)
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
       const isMatch = await user.matchPassword(password);
+      console.log("🚀 ~ loginUser ~ isMatch:", isMatch)
       if (!isMatch) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
       const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
         expiresIn: '1d',
       });
-      res.status(200).json({ token });
+      res.status(200).json({ token,email,name:user.name,id:user._id });
     } catch (err) {
       res.status(400).json({ error: err.message });
     }
@@ -69,7 +73,7 @@ export const updateUser = async (req, res) => {
     const { name, password, mobileNo } = req.body;
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
-      { name, password, mobileNo },
+      { name, mobileNo },
       { new: true, runValidators: true }
     );
     res.status(200).json(updatedUser);

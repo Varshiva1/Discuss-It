@@ -8,11 +8,18 @@ function Login({ setIsAuthenticated }) {
   const [errorMessage, setErrorMessage] = useState(''); // State for error message
   const navigate = useNavigate();
 
+
+
   const handleLogin = async (e) => {
+
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:5000/api/login', { email, password });
+      console.log("🚀 ~ handleLogin ~ response:", response.data)
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('email', response.data.email);
+      localStorage.setItem('name', response.data.name);
+      localStorage.setItem('id', response.data.id);
       setIsAuthenticated(true);
       navigate('/dashboard'); // Redirect to the dashboard page
     } catch (error) {

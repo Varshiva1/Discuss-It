@@ -1,10 +1,13 @@
 import Discussion from '../models/Discussion.js';
+import {v4} from 'uuid';
 
 // Create Discussion
 export const createDiscussion = async (req, res) => {
   try {
     const { text, image, hashTags, userId } = req.body;
+    console.log(text,image,hashTags,userId)
     const newDiscussion = await Discussion.create({
+      discussionId:v4(),
       text,
       image,
       hashTags,
@@ -12,6 +15,7 @@ export const createDiscussion = async (req, res) => {
     });
     res.status(201).json(newDiscussion);
   } catch (err) {
+    console.log("🚀 ~ createDiscussion ~ err:", err)
     res.status(400).json({ error: err.message });
   }
 };
@@ -37,6 +41,7 @@ export const deleteDiscussion = async (req, res) => {
     await Discussion.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Discussion deleted' });
   } catch (err) {
+    console.log("🚀 ~ deleteDiscussion ~ err:", err)
     res.status(400).json({ error: err.message });
   }
 };
@@ -47,6 +52,7 @@ export const getAllDiscussions = async (req, res) => {
     const discussions = await Discussion.find();
     res.status(200).json(discussions);
   } catch (err) {
+    console.log("🚀 ~ getAllDiscussions ~ err:", err)
     res.status(400).json({ error: err.message });
   }
 };
