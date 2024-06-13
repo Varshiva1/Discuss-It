@@ -1,21 +1,30 @@
 import Discussion from '../models/Discussion.js';
-import {v4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 // Create Discussion
 export const createDiscussion = async (req, res) => {
   try {
-    const { text, image, hashTags, userId } = req.body;
-    console.log(text,image,hashTags,userId)
+    const { text, hashTags, userId } = req.body;
+    console.log(text, hashTags, userId, "data");
+
+    let image = null;
+    if (req.file) {
+      image = req.file.buffer.toString('base64');
+    }
+
     const newDiscussion = await Discussion.create({
-      discussionId:v4(),
+      discussionId: uuidv4(),
       text,
       image,
       hashTags,
       user: userId,
+      likes: [],
+      comments: [],
+      viewCount: 0
     });
     res.status(201).json(newDiscussion);
   } catch (err) {
-    console.log("🚀 ~ createDiscussion ~ err:", err)
+    console.log("🚀 ~ createDiscussion ~ err:", err);
     res.status(400).json({ error: err.message });
   }
 };
@@ -23,10 +32,16 @@ export const createDiscussion = async (req, res) => {
 // Update Discussion
 export const updateDiscussion = async (req, res) => {
   try {
-    const { text, image, hashTags } = req.body;
+    const { text, hashTags } = req.body;
+    let updateData = { text, hashTags };
+
+    if (req.file) {
+      updateData.image = req.file.buffer.toString('base64');
+    }
+
     const updatedDiscussion = await Discussion.findByIdAndUpdate(
       req.params.id,
-      { text, image, hashTags },
+      updateData,
       { new: true, runValidators: true }
     );
     res.status(200).json(updatedDiscussion);
@@ -41,7 +56,7 @@ export const deleteDiscussion = async (req, res) => {
     await Discussion.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Discussion deleted' });
   } catch (err) {
-    console.log("🚀 ~ deleteDiscussion ~ err:", err)
+    console.log("🚀 ~ deleteDiscussion ~ err:", err);
     res.status(400).json({ error: err.message });
   }
 };
@@ -52,7 +67,7 @@ export const getAllDiscussions = async (req, res) => {
     const discussions = await Discussion.find();
     res.status(200).json(discussions);
   } catch (err) {
-    console.log("🚀 ~ getAllDiscussions ~ err:", err)
+    console.log("🚀 ~ getAllDiscussions ~ err:", err);
     res.status(400).json({ error: err.message });
   }
 };
@@ -85,12 +100,11 @@ export const likeDiscussion = async (req, res) => {
 
     if (!discussion.likes.includes(userId)) {
       discussion.likes.push(userId);
+      await discussion.save();
+      res.status(200).json(discussion);
     } else {
-      return res.status(400).json({ error: 'You have already liked this discussion' });
+      res.status(400).json({ error: 'You have already liked this discussion' });
     }
-
-    await discussion.save();
-    res.status(200).json(discussion);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -104,12 +118,11 @@ export const unlikeDiscussion = async (req, res) => {
 
     if (discussion.likes.includes(userId)) {
       discussion.likes = discussion.likes.filter((id) => id.toString() !== userId);
+      await discussion.save();
+      res.status(200).json(discussion);
     } else {
-      return res.status(400).json({ error: 'You have not liked this discussion' });
+      res.status(400).json({ error: 'You have not liked this discussion' });
     }
-
-    await discussion.save();
-    res.status(200).json(discussion);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -146,12 +159,11 @@ export const likeComment = async (req, res) => {
 
     if (!comment.likes.includes(userId)) {
       comment.likes.push(userId);
+      await discussion.save();
+      res.status(200).json(discussion);
     } else {
-      return res.status(400).json({ error: 'You have already liked this comment' });
+      res.status(400).json({ error: 'You have already liked this comment' });
     }
-
-    await discussion.save();
-    res.status(200).json(discussion);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -168,12 +180,11 @@ export const unlikeComment = async (req, res) => {
 
     if (comment.likes.includes(userId)) {
       comment.likes = comment.likes.filter((id) => id.toString() !== userId);
+      await discussion.save();
+      res.status(200).json(discussion);
     } else {
-      return res.status(400).json({ error: 'You have not liked this comment' });
+      res.status(400).json({ error: 'You have not liked this comment' });
     }
-
-    await discussion.save();
-    res.status(200).json(discussion);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

@@ -5,19 +5,26 @@ function DiscussionList() {
   const [discussions, setDiscussions] = useState([]);
   const [searchTags, setSearchTags] = useState('');
   const [searchText, setSearchText] = useState('');
+  const [likedDiscussions, setLikedDiscussions] = useState([]);
+  const [editDiscussion, setEditDiscussion] = useState(null);
+  const [newText, setNewText] = useState('');
+  const [newTags, setNewTags] = useState('');
+  const [newImage, setNewImage] = useState(null);
+  const [comments, setComments] = useState({});
+  const [newComment, setNewComment] = useState({});
+  const [viewCounts, setViewCounts] = useState({});
+
+  const userId = localStorage.getItem('userId');
 
   useEffect(() => {
     const fetchDiscussions = async () => {
       try {
         let response;
         if (searchTags) {
-          // Make a request to your API to fetch discussions by tags
           response = await axios.get(`http://localhost:5000/api/tags?tags=${searchTags}`);
         } else if (searchText) {
-          // Make a request to your API to fetch discussions by text
           response = await axios.get(`http://localhost:5000/api/text?text=${searchText}`);
         } else {
-          // Make a request to your API to fetch all discussions
           response = await axios.get('http://localhost:5000/api/all');
         }
         setDiscussions(response.data);
@@ -29,6 +36,47 @@ function DiscussionList() {
     fetchDiscussions();
   }, [searchTags, searchText]);
 
+  useEffect(() => {
+    const fetchLikedDiscussions = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/liked-discussions/${userId}`);
+        setLikedDiscussions(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const fetchComments = async () => {
+      try {
+        const commentsData = {};
+        for (const discussion of discussions) {
+          const response = await axios.get(`http://localhost:5000/api/comments/${discussion._id}`);
+          commentsData[discussion._id] = response.data;
+        }
+        setComments(commentsData);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const fetchViewCounts = async () => {
+      try {
+        const viewCountsData = {};
+        for (const discussion of discussions) {
+          const response = await axios.get(`http://localhost:5000/api/view-count/${discussion._id}`);
+          viewCountsData[discussion._id] = response.data.viewCount;
+        }
+        setViewCounts(viewCountsData);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchLikedDiscussions();
+    fetchComments();
+    fetchViewCounts();
+  }, [discussions, userId]);
+
   const handleSearchTagsChange = (e) => {
     setSearchTags(e.target.value);
   };
@@ -39,23 +87,104 @@ function DiscussionList() {
 
   const handleDeleteDiscussion = async (discussionId) => {
     try {
-
       await axios.delete(`http://localhost:5000/api/${discussionId}`);
-
-      setDiscussions(discussions.filter(discussion => discussion._id !== discussionId));
+      setDiscussions(discussions.filter((discussion) => discussion._id !== discussionId));
     } catch (error) {
       console.error(error);
     }
   };
 
-
-  const handleEditDiscussion = async (discussionId) => {
+  const handleEditDiscussion = (discussion) => {
+    setEditDiscussion(discussion);
+    setNewText(discussion.text);
+    setNewTags(discussion.hashTags.join(','));
+    setNewImage(null);
+  };
+  const handleSaveEditedDiscussion = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/${discussionId}`);
+      const formData = new FormData();
+      formData.append('image', newImage);
+      formData.append('text', newText);
+      formData.append('hashTags', newTags.split(',').map((tag) => tag.trim()).join(','));
+  
+      const response = await axios.put(`http://localhost:5000/api/${editDiscussion._id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      setDiscussions(discussions.map((d) => (d._id === editDiscussion._id ? response.data : d)));
+      setEditDiscussion(null);
     } catch (error) {
       console.error(error);
     }
+  };
+  
 
+  const handleLikeDiscussion = async (discussionId) => {
+    try {
+      const response = await axios.post(`http://localhost:5000/api/like-discussion/${discussionId}/${userId}`);
+      if (response.data.liked) {
+        setLikedDiscussions([...likedDiscussions, discussionId]);
+      } else {
+        setLikedDiscussions(likedDiscussions.filter((id) => id !== discussionId));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleCommentDiscussion = async (discussionId) => {
+    try {
+      await axios.post(`http://localhost:5000/api/${discussionId}/comment`, { text: newComment[discussionId], userId });
+      const response = await axios.get(`http://localhost:5000/api/comments/${discussionId}`);
+      setComments({ ...comments, [discussionId]: response.data });
+      setNewComment({ ...newComment, [discussionId]: '' }); // Clear input after posting
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
+
+  const handleReplyComment = async (discussionId, commentId, reply) => {
+    try {
+      await axios.post(`http://localhost:5000/api/reply/${discussionId}/${commentId}`, { reply, userId });
+      const response = await axios.get(`http://localhost:5000/api/comments/${discussionId}`);
+      setComments({ ...comments, [discussionId]: response.data });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleLikeComment = async (discussionId, commentId) => {
+    try {
+      await axios.post(`http://localhost:5000/api/${discussionId}/comment/${commentId}/like`);
+      const response = await axios.get(`http://localhost:5000/api/comments/${discussionId}`);
+      setComments({ ...comments, [discussionId]: response.data });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
+
+  const handleDeleteComment = async (discussionId, commentId) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/comment/${discussionId}/${commentId}`);
+      const response = await axios.get(`http://localhost:5000/api/comments/${discussionId}`);
+      setComments({ ...comments, [discussionId]: response.data });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleEditComment = async (discussionId, commentId, newCommentText) => {
+    try {
+      await axios.put(`http://localhost:5000/api/comment/${discussionId}/${commentId}`, { text: newCommentText });
+      const response = await axios.get(`http://localhost:5000/api/comments/${discussionId}`);
+      setComments({ ...comments, [discussionId]: response.data });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -79,39 +208,118 @@ function DiscussionList() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {discussions.map((discussion) => (
-          <div
-            key={discussion._id}
-            className="bg-white shadow-md rounded-md p-4"
-          >
-            <h3 className="text-lg font-bold mb-2">{discussion.text}</h3>
-            {discussion.image && (
-              <img
-                src={`http://localhost:5000/api/discussions/${discussion._id}/image`}
-                alt="Discussion"
-                className="mb-2"
-              />
+          <div key={discussion._id} className="bg-white shadow-md rounded-md p-4 flex flex-col justify-between">
+            {editDiscussion?._id === discussion._id ? (
+              <div>
+                <textarea
+                  value={newText}
+                  onChange={(e) => setNewText(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded mb-2"
+                />
+                <input
+                  type="text"
+                  value={newTags}
+                  onChange={(e) => setNewTags(e.target.value)}
+                  placeholder="Enter tags separated by commas"
+                  className="w-full px-3 py-2 border border-gray-300 rounded mb-2"
+                />
+                <input
+                  type="file"
+                  onChange={(e) => setNewImage(e.target.files[0])}
+                  className="mb-2"
+                />
+                <button
+                  onClick={handleSaveEditedDiscussion}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mr-2"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setEditDiscussion(null)}
+                  className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div>
+               
+                <h3 className="text-lg font-bold">{discussion.text}</h3>
+                {discussion.image && <img src={`http://localhost:5000/${discussion.image}`} alt="Discussion" className="my-2 max-w-full h-auto object-cover" />}
+                <p><strong>Hash Tags:</strong> {discussion.hashTags.join(', ')}</p>
+                <p><strong>Created On:</strong> {new Date(discussion.createdOn).toLocaleString()}</p>
+                <p><strong>View Count:</strong> {viewCounts[discussion._id]}</p>
+              </div>
             )}
-            <p className="text-gray-600 mb-2">
-              <span className="font-bold">Hash Tags:</span>{' '}
-              {discussion.hashTags.join(', ')}
-            </p>
-            <p className="text-gray-600">
-              <span className="font-bold">Created On:</span>{' '}
-              {new Date(discussion.createdOn).toLocaleString()}
-            </p>
-            <div className="mt-4 flex justify-between">
-              <button
-                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-                onClick={() => handleDeleteDiscussion(discussion._id)}
-              >
-                Delete
-              </button>
-              <button
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-                onClick={() => handleEditDiscussion(discussion._id)}
-              >
-                Edit
-              </button>
+            <div className="mt-auto">
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => handleLikeDiscussion(discussion._id)}
+                  className={`px-4 py-2 rounded ${likedDiscussions.includes(discussion._id) ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                >
+                  Like
+                </button>
+                <button
+                  onClick={() => handleDeleteDiscussion(discussion._id)}
+                  className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={() => handleEditDiscussion(discussion)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                >
+                  Edit
+                </button>
+              </div>
+              <div className="mt-4">
+                <input
+                  type="text"
+                  placeholder="Add a comment"
+                  value={newComment[discussion._id] || ''}
+                  onChange={(e) => setNewComment({ ...newComment, [discussion._id]: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded mb-2"
+                />
+                <button
+                  onClick={() => handleCommentDiscussion(discussion._id)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                >
+                  Comment
+                </button>
+              </div>
+              <div>
+              {comments[discussion._id]?.map((comment) => (
+  <div key={comment._id} className="mt-2">
+    <p>{comment.text}</p>
+    <div className="flex items-center space-x-2 mt-1">
+      <button
+        onClick={() => handleLikeComment(discussion._id, comment._id)}
+        className="bg-gray-200 px-2 py-1 rounded"
+      >
+        Like
+      </button>
+                      <button
+                        onClick={() => handleReplyComment(discussion._id, comment._id, prompt('Enter your reply:'))}
+                        className="bg-gray-200 px-2 py-1 rounded"
+                      >
+                        Reply
+                      </button>
+                      <button
+                        onClick={() => handleDeleteComment(discussion._id, comment._id)}
+                        className="bg-red-500 hover:bg-red-600 text-white font-bold px-2 py-1 rounded"
+                      >
+                        Delete
+                      </button>
+                      <button
+                        onClick={() => handleEditComment(discussion._id, comment._id, prompt('Edit your comment:', comment.text))}
+                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold px-2 py-1 rounded"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         ))}
