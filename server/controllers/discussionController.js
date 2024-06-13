@@ -29,6 +29,23 @@ export const createDiscussion = async (req, res) => {
   }
 };
 
+
+// Fetch comments based on discussion ID
+export const getCommentsByDiscussionId = async (req, res) => {
+  const { discussionId } = req.params;
+  try {
+    const discussion = await Discussion.findOne({ discussionId });
+    if (!discussion) {
+      return res.status(404).json({ message: 'Discussion not found' });
+    }
+    res.status(200).json(discussion.comments);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching comments', error });
+  }
+};
+
+// Other controller functions...
+
 // Update Discussion
 export const updateDiscussion = async (req, res) => {
   try {
