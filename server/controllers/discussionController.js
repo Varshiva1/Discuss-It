@@ -210,18 +210,30 @@ export const unlikeComment = async (req, res) => {
 // Update Comment
 export const updateComment = async (req, res) => {
   try {
-    const discussion = await Discussion.findById(req.params.discussionId);
-    const commentIndex = req.params.commentIndex;
+    const { discussionId, commentId } = req.params;
     const { text } = req.body;
 
-    discussion.comments[commentIndex].text = text;
+    const discussion = await Discussion.findById(discussionId);
+
+    if (!discussion) {
+      return res.status(404).json({ error: 'Discussion not found' });
+    }
+
+    const commentToUpdate = discussion.comments.id(commentId);
+
+    if (!commentToUpdate) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    commentToUpdate.text = text;
     await discussion.save();
-    res.status(200).json(discussion);
+
+    res.status(200).json(discussion); // Return the updated discussion object
   } catch (err) {
+    console.error(err.message);
     res.status(400).json({ error: err.message });
   }
 };
-
 // Delete Comment
 export const deleteComment = async (req, res) => {
   try {

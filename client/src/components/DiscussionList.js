@@ -170,10 +170,9 @@ function DiscussionList() {
       console.error(error);
     }
   };
-
   const handleEditComment = async (discussionId, commentId, newCommentText) => {
     try {
-      await axios.put(`http://localhost:5000/api/${discussionId}/comment/${commentId}`, { text: newCommentText });
+      await axios.post(`http://localhost:5000/api/${discussionId}/comment/${commentId}`, { text: newCommentText });
       const response = await axios.get(`http://localhost:5000/api/comments/${discussionId}`);
       setDiscussions((prevDiscussions) =>
         prevDiscussions.map((d) => (d._id === discussionId ? { ...d, comments: response.data } : d))

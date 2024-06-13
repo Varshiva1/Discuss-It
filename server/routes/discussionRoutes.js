@@ -34,7 +34,7 @@ router.post('/:id/unlike', unlikeDiscussion);
 router.post('/:id/comment', commentOnDiscussion);
 router.post('/:discussionId/comment/:commentIndex/like', likeComment);
 router.post('/:discussionId/comment/:commentIndex/unlike', unlikeComment);
-router.put('/:discussionId/comment/:commentId', updateComment);
+router.post('/:discussionId/comment/:commentId', updateComment);
 router.delete('/:discussionId/comment/:commentId', deleteComment);
 router.post('/:id/view', incrementViewCount);
 router.get('/comments/:discussionId', getCommentsByDiscussionId); 
