@@ -5,7 +5,8 @@ function CreateDiscussion() {
   const [text, setText] = useState('');
   const [image, setImage] = useState(null);
   const [hashTags, setHashTags] = useState('');
-const userId = localStorage.getItem('id')
+  const userId = localStorage.getItem('id');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -17,9 +18,19 @@ const userId = localStorage.getItem('id')
 
       // Make a request to your API to create a new discussion
       const response = await axios.post('http://localhost:5000/api/creatediscussion', formData);
-      console.log(response.data);
+      console.log(response.data); // Assuming API returns relevant data upon successful creation
+
+      // Alert message on successful creation
+      alert('Discussion created successfully!');
+
+      // Clear form fields after successful submission
+      setText('');
+      setImage(null);
+      setHashTags('');
     } catch (error) {
       console.error(error);
+      // Display error message if API call fails
+      alert('Failed to create discussion. Please try again.');
     }
   };
 
