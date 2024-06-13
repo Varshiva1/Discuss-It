@@ -1,4 +1,5 @@
-//discussiolist.js
+// testjs
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -11,13 +12,11 @@ function DiscussionList() {
   const [newText, setNewText] = useState('');
   const [newTags, setNewTags] = useState('');
   const [newImage, setNewImage] = useState(null);
-  const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState({});
   const [editComment, setEditComment] = useState({});
   const [viewCounts, setViewCounts] = useState({});
 
   const userId = localStorage.getItem('id');
-  console.log(userId, "userID");
 
   useEffect(() => {
     const fetchDiscussions = async () => {
@@ -31,7 +30,6 @@ function DiscussionList() {
           response = await axios.get('http://localhost:5000/api/all');
         }
         setDiscussions(response.data);
-        console.log(response.data,"data");
       } catch (error) {
         console.error(error);
       }
@@ -50,21 +48,6 @@ function DiscussionList() {
       }
     };
 
-    const fetchComments = async () => {
-      try {
-        const commentsData = {};
-        for (const discussion of discussions) {
-          const response = await axios.get(`http://localhost:5000/api/comments/${discussion.discussionId}`);
-          console.log(response.data,"res");
-          commentsData[discussion.discussionId] = response.data;
-        }
-        setComments(commentsData);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    
-
     const fetchViewCounts = async () => {
       try {
         const viewCountsData = {};
@@ -79,7 +62,6 @@ function DiscussionList() {
     };
 
     fetchLikedDiscussions();
-    fetchComments();
     fetchViewCounts();
   }, [discussions, userId]);
 
@@ -188,115 +170,107 @@ function DiscussionList() {
       console.error(error);
     }
   };
-const handleEditComment = async (discussionId, commentId, newCommentText) => {
-  try {
-    await axios.put(`http://localhost:5000/api/${discussionId}/comment/${commentId}`, { text: newCommentText });
-    const response = await axios.get(`http://localhost:5000/api/comments/${discussionId}`);
-    setDiscussions((prevDiscussions) =>
-      prevDiscussions.map((d) => (d._id === discussionId ? { ...d, comments: response.data } : d))
-    );
-  } catch (error) {
-    console.error(error);
-  }
-};
 
-return (
-  <div className="container mx-auto my-8">
-    <h2 className="text-2xl font-bold mb-4">Discussion List</h2>
-    <div className="mb-4">
-      <input
-        type="text"
-        placeholder="Search by tags"
-        value={searchTags}
-        onChange={handleSearchTagsChange}
-        className="w-full md:w-auto px-3 py-2 border border-gray-300 rounded mr-2 mb-2 md:mb-0"
-      />
-      <input
-        type="text"
-        placeholder="Search by text"
-        value={searchText}
-        onChange={handleSearchTextChange}
-        className="w-full md:w-auto px-3 py-2 border border-gray-300 rounded"
-      />
-    </div>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {discussions.map((discussion) => (
-        <div key={discussion._id} className="bg-white shadow-md rounded-md p-4 flex flex-col justify-between">
-          {editDiscussion?._id === discussion._id ? (
-            <div>
-              <textarea
-                value={newText}
-                onChange={(e) => setNewText(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded mb-2"
-              />
-              <input
-                type="text"
-                value={newTags}
-                onChange={(e) => setNewTags(e.target.value)}
-                placeholder="Enter tags separated by commas"
-                className="w-full px-3 py-2 border border-gray-300 rounded mb-2"
-              />
-              <input
-                type="file"
-                onChange={(e) => setNewImage(e.target.files[0])}
-                className="mb-2"
-              />
-              <button
-                onClick={handleSaveEditedDiscussion}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mr-2"
-              >
-                Save
-              </button>
-              <button
-                onClick={() => setEditDiscussion(null)}
-                className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-              >
-                Cancel
-              </button>
-            </div>
-          ) : (
-            <div>
-              <p className="text-gray-700">{discussion.text}</p>
-              {discussion.image && (
-                <img
-                  src={`data:image/jpeg;base64,${discussion.image}`}
-                  alt="Discussion"
-                  className="my-2 max-w-full h-auto object-cover"
+  const handleEditComment = async (discussionId, commentId, newCommentText) => {
+    try {
+      await axios.put(`http://localhost:5000/api/${discussionId}/comment/${commentId}`, { text: newCommentText });
+      const response = await axios.get(`http://localhost:5000/api/comments/${discussionId}`);
+      setDiscussions((prevDiscussions) =>
+        prevDiscussions.map((d) => (d._id === discussionId ? { ...d, comments: response.data } : d))
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <div className="container mx-auto my-8">
+      <h2 className="text-2xl font-bold mb-4">Discussion List</h2>
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by tags"
+          value={searchTags}
+          onChange={handleSearchTagsChange}
+          className="w-full md:w-auto px-3 py-2 border border-gray-300 rounded mr-2 mb-2 md:mb-0"
+        />
+        <input
+          type="text"
+          placeholder="Search by text"
+          value={searchText}
+          onChange={handleSearchTextChange}
+          className="w-full md:w-auto px-3 py-2 border border-gray-300 rounded"
+        />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {discussions.map((discussion) => (
+          <div key={discussion._id} className="bg-white shadow-md rounded-md p-4 flex flex-col justify-between">
+            {editDiscussion?._id === discussion._id ? (
+              <div>
+                <textarea
+                  value={newText}
+                  onChange={(e) => setNewText(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded mb-2"
                 />
-              )}
-              <p><strong>Hash Tags:</strong> {discussion.hashTags.join(', ')}</p>
-              <p><strong>Created On:</strong> {new Date(discussion.createdOn).toLocaleString()}</p>
-              <p><strong>View Count:</strong> {viewCounts[discussion._id]}</p>
-              <div className="mt-2">
-                {discussion.hashTags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="inline-block bg-gray-200 text-gray-700 rounded-full px-2 py-1 text-xs font-semibold mr-2"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-4 flex justify-between">
+                <input
+                  type="text"
+                  value={newTags}
+                  onChange={(e) => setNewTags(e.target.value)}
+                  placeholder="Enter tags separated by commas"
+                  className="w-full px-3 py-2 border border-gray-300 rounded mb-2"
+                />
+                <input
+                  type="file"
+                  onChange={(e) => setNewImage(e.target.files[0])}
+                  className="mb-2"
+                />
                 <button
-                  onClick={() => handleLikeDiscussion(discussion._id)}
-                  className={`${
-                    likedDiscussions.includes(discussion._id) ? 'bg-red-500' : 'bg-blue-500'
-                  } hover:bg-blue-600 text-white font-bold py-2 px-4 rounded`}
+                  onClick={handleSaveEditedDiscussion}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mr-2"
                 >
-                  {likedDiscussions.includes(discussion._id) ? 'Unlike' : 'Like'}
+                  Save
                 </button>
                 <button
-                  onClick={() => handleEditDiscussion(discussion)}
-                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mr-2"
+                  onClick={() => setEditDiscussion(null)}
+                  className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
                 >
-                  Edit
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div>
+                <h3 className="text-lg font-bold">{discussion.text}</h3>
+                {discussion.image && (
+                  <img
+                  src={`data:image/jpeg;base64,${discussion.image}`}
+                    alt="Discussion"
+                    className="my-2 max-w-full h-auto object-cover"
+                  />
+                )}
+                <p><strong>Hash Tags:</strong> {discussion.hashTags.join(', ')}</p>
+                <p><strong>Created On:</strong> {new Date(discussion.createdOn).toLocaleString()}</p>
+                <p><strong>View Count:</strong> {viewCounts[discussion._id]}</p>
+              </div>
+            )}
+            <div className="mt-auto">
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => handleLikeDiscussion(discussion._id)}
+                  className={`px-4 py-2 rounded ${likedDiscussions.includes(discussion._id) ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                >
+                  Like
                 </button>
                 <button
                   onClick={() => handleDeleteDiscussion(discussion._id)}
                   className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
                 >
                   Delete
+                </button>
+                <button
+                  onClick={() => handleEditDiscussion(discussion)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                >
+                  Edit
                 </button>
               </div>
               <div className="mt-4">
@@ -315,7 +289,7 @@ return (
                 </button>
               </div>
               <div>
-                {comments[discussion._id]?.map((comment) => (
+                {discussion.comments?.map((comment) => (
                   <div key={comment._id} className="mt-2">
                     {editComment[comment._id] ? (
                       <div>
@@ -373,12 +347,11 @@ return (
                 ))}
               </div>
             </div>
-          )}
-        </div>
-      ))}
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
 }
 
 export default DiscussionList;
