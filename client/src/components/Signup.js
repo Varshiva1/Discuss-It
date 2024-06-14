@@ -21,7 +21,7 @@ function Signup({ setIsAuthenticated }) {
       const response = await axios.post('http://localhost:5000/api/signup', { name, mobileNo, email, password });
       localStorage.setItem('token', response.data.token);
       setIsAuthenticated(true);
-      navigate('/dashboard'); // Redirect to the dashboard page
+      navigate('/users'); // Redirect to the dashboard page
     } catch (error) {
       console.error(error);
       setErrorMessage('Signup failed, please try again'); // Set error message on failure

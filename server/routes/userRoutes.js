@@ -29,10 +29,10 @@ router.get('/users', getAllUsers);
 // Search User by Name Route
 router.get('/users/search', searchUserByName);
 
-// Follow User Route
 router.post('/follow', followUser);
 
 // Unfollow User Route
 router.post('/unfollow', unfollowUser);
+
 
 export default router;

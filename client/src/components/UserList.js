@@ -10,17 +10,26 @@ function UserList() {
   const [mobileNo, setMobileNo] = useState('');
 
   const userId = localStorage.getItem('id');
-
+console.log(userId,"id")
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         let response;
         if (searchName) {
+         
           response = await axios.get(`http://localhost:5000/api/users/search?name=${searchName}`);
+          console.log(response,"resp2")
         } else {
           response = await axios.get('http://localhost:5000/api/users');
+          console.log(response,"resp2")
         }
-        setUsers(response.data);
+        const currentUserId = localStorage.getItem('id');
+        setUsers(
+          response.data.map((user) => ({
+            ...user,
+            isFollowing: user.followers.includes(currentUserId),
+          }))
+        );
       } catch (error) {
         console.error(error);
       }
@@ -59,6 +68,33 @@ function UserList() {
       const response = await axios.post(`http://localhost:5000/api/users/update/${editUser._id}`, updatedUser);
       setUsers(users.map((user) => (user._id === editUser._id ? response.data : user)));
       setEditUser(null);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleFollow = async (userId, isFollowing) => {
+    try {
+      const currentUserId = localStorage.getItem('id');
+      if (isFollowing) {
+        await axios.post('http://localhost:5000/api/users/unfollow', {
+          currentUserId,
+          userToUnfollowId: userId,
+        });
+      } else {
+        await axios.post('http://localhost:5000/api/users/follow', {
+          currentUserId,
+          userToFollowId: userId,
+        });
+      }
+
+      // Update the users list after successful follow/unfollow
+      const response = await axios.get('http://localhost:5000/api/users');
+      const updatedUsers = response.data.map((user) => ({
+        ...user,
+        isFollowing: user.followers.includes(currentUserId),
+      }));
+      setUsers(updatedUsers);
     } catch (error) {
       console.error(error);
     }
@@ -103,10 +139,10 @@ function UserList() {
                   </>
                 ) : (
                   <button
-                    onClick={() => handleEdit(user)}
+                    onClick={() => handleFollow(user._id, user.isFollowing)}
                     className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600 transition-colors duration-300"
                   >
-                    Follow
+                    {user.isFollowing ? 'Unfollow' : 'Follow'}
                   </button>
                 )}
               </div>

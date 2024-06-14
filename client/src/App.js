@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
-import Dashboard from "./components/Dashboard";
+// import Dashboard from "./components/Dashboard";
 import Navbar from "./components/Navbar";
 import UserList from "./components/UserList";
 import CreateDiscussion from "./components/CreateDiscussion";
@@ -21,7 +21,6 @@ function App() {
     <>
       <Navbar isAuthenticated={isAuthenticated} />
       <Routes>
-        <Route path="/" element={<Dashboard />} />
         <Route path="/users" element={<UserList />} />
         <Route path="/create-discussion" element={<CreateDiscussion />} />
         <Route path="/discussions" element={<DiscussionList />} />
@@ -34,18 +33,24 @@ function App() {
       <div className="App">
         <Routes>
           <Route
-            path="/*"
-            element={
-              isAuthenticated ? <PrivateRoutes /> : <Navigate to="/login" />
-            }
-          />
-          <Route
             path="/login"
-            element={<Login setIsAuthenticated={setIsAuthenticated} />}
+            element={
+              isAuthenticated ? (
+                <Navigate to="/users" />
+              ) : (
+                <Login setIsAuthenticated={setIsAuthenticated} />
+              )
+            }
           />
           <Route
             path="/signup"
             element={<Signup setIsAuthenticated={setIsAuthenticated} />}
+          />
+          <Route
+            path="/*"
+            element={
+              isAuthenticated ? <PrivateRoutes /> : <Navigate to="/login" />
+            }
           />
         </Routes>
       </div>
