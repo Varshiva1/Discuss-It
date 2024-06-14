@@ -1,4 +1,4 @@
-//usercontroller.js
+
 import User from '../models/User.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -49,25 +49,7 @@ export const loginUser = async (req, res) => {
     }
   };
   
-
-// Update User
-// export const updateUser = async (req, res) => {
-//     try {
-//       const { email, name, mobileNo, password } = req.body;
-//       const user = await User.findOneAndUpdate(
-//         { email },
-//         { name, mobileNo, password },
-//         { new: true, runValidators: true }
-//       );
-//       if (!user) {
-//         return res.status(404).json({ error: 'User not found' });
-//       }
-//       res.status(200).json(user);
-//     } catch (err) {
-//       res.status(400).json({ error: err.message });
-//     }
-//   };
-
+//update user
 export const updateUser = async (req, res) => {
   try {
     const { name, password, mobileNo } = req.body;
@@ -83,18 +65,7 @@ export const updateUser = async (req, res) => {
 };
   
   // Delete User
-  // export const deleteUser = async (req, res) => {
-  //   try {
-  //     const { email } = req.body;
-  //     const user = await User.findOneAndDelete({ email });
-  //     if (!user) {
-  //       return res.status(404).json({ error: 'User not found' });
-  //     }
-  //     res.status(200).json({ message: 'User deleted' });
-  //   } catch (err) {
-  //     res.status(400).json({ error: err.message });
-  //   }
-  // };
+
   export const deleteUser = async (req, res) => {
     try {
       await User.findByIdAndDelete(req.params.id);

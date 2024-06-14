@@ -110,7 +110,8 @@ function DiscussionList() {
 
   const handleLikeDiscussion = async (discussionId) => {
     try {
-      const response = await axios.post(`http://localhost:5000/api/like-discussion/${discussionId}/${userId}`);
+      console.log("here");
+      const response = await axios.post(`http://localhost:5000/api/likeDiscussion/${discussionId}/${userId}`);
       if (response.data.liked) {
         setLikedDiscussions([...likedDiscussions, discussionId]);
       } else {
@@ -118,8 +119,8 @@ function DiscussionList() {
       }
     } catch (error) {
       console.error(error);
-    }
-  };
+    }
+  };
 
   const handleCommentDiscussion = async (discussionId) => {
     try {
@@ -163,26 +164,26 @@ function DiscussionList() {
     }
   };
 
-  const handleLikeComment = async (discussionId, commentId) => {
-    try {
-      const likeResponse = await axios.post(`http://localhost:5000/api/${discussionId}/comment/${commentId}/like`);
+  // const handleLikeComment = async (discussionId, commentId) => {
+  //   try {
+  //     const likeResponse = await axios.post(`http://localhost:5000/api/${discussionId}/comment/${commentId}/like`);
 
-      setDiscussions((prevDiscussions) =>
-        prevDiscussions.map((d) =>
-          d._id === discussionId
-            ? {
-                ...d,
-                comments: d.comments.map((c) =>
-                  c._id === commentId ? { ...c, likedBy: likeResponse.data.likedBy } : c
-                ),
-              }
-            : d
-        )
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  //     setDiscussions((prevDiscussions) =>
+  //       prevDiscussions.map((d) =>
+  //         d._id === discussionId
+  //           ? {
+  //               ...d,
+  //               comments: d.comments.map((c) =>
+  //                 c._id === commentId ? { ...c, likedBy: likeResponse.data.likedBy } : c
+  //               ),
+  //             }
+  //           : d
+  //       )
+  //     );
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
   const handleDeleteComment = async (discussionId, commentId) => {
     try {

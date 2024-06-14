@@ -29,14 +29,12 @@ router.delete("/:id", deleteDiscussion);
 router.get("/all", getAllDiscussions);
 router.get("/tags", getDiscussionsByTags);
 router.get("/text", getDiscussionsByText);
-router.post("/:id/like", likeDiscussion);
 router.post("/:id/unlike", unlikeDiscussion);
 router.post("/:id/comment", commentOnDiscussion);
-router.post("/:discussionId/comment/:commentIndex/like", likeComment);
-router.post("/:discussionId/comment/:commentIndex/unlike", unlikeComment);
 router.post("/:discussionId/comment/:commentId", updateComment);
 router.delete("/:discussionId/comment/:commentId", deleteComment);
 router.post("/:id/view", incrementViewCount);
 router.get("/comments/:discussionId", getCommentsByDiscussionId);
-
+router.post('/likeDiscussion/:id/:userId', likeDiscussion);
+router.post("/:discussionId/comment/:commentId/reply", replyToComment);
 export default router;

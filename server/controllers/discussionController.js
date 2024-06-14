@@ -43,7 +43,7 @@ export const getCommentsByDiscussionId = async (req, res) => {
   }
 };
 
-// Other controller functions...
+
 
 // Update Discussion
 export const updateDiscussion = async (req, res) => {
@@ -116,20 +116,19 @@ export const getDiscussionsByText = async (req, res) => {
 export const likeDiscussion = async (req, res) => {
   try {
     const discussion = await Discussion.findById(req.params.id);
-    const userId = req.body.userId;
+    const userId = req.params.userId;
 
     if (!discussion.likes.includes(userId)) {
       discussion.likes.push(userId);
       await discussion.save();
       res.status(200).json(discussion);
     } else {
-      res.status(400).json({ error: "You have already liked this discussion" });
+      res.status(400).json({ error: 'You have already liked this discussion' });
     }
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
-
 // Unlike Discussion
 export const unlikeDiscussion = async (req, res) => {
   try {
@@ -170,44 +169,39 @@ export const commentOnDiscussion = async (req, res) => {
   }
 };
 
-// Like Comment
-export const likeComment = async (req, res) => {
+
+// Reply to Comment
+export const replyToComment = async (req, res) => {
   try {
-    const discussion = await Discussion.findById(req.params.discussionId);
-    const commentIndex = req.params.commentIndex;
-    const userId = req.body.userId;
+    const { discussionId, commentId } = req.params;
+    const { text, userId } = req.body;
 
-    const comment = discussion.comments[commentIndex];
+    const discussion = await Discussion.findById(discussionId);
 
-    if (!comment.likes.includes(userId)) {
-      comment.likes.push(userId);
-      await discussion.save();
-      res.status(200).json(discussion);
-    } else {
-      res.status(400).json({ error: "You have already liked this comment" });
+    if (!discussion) {
+      return res.status(404).json({ error: "Discussion not found" });
     }
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
 
-// Unlike Comment
-export const unlikeComment = async (req, res) => {
-  try {
-    const discussion = await Discussion.findById(req.params.discussionId);
-    const commentIndex = req.params.commentIndex;
-    const userId = req.body.userId;
+    const comment = discussion.comments.id(commentId);
 
-    const comment = discussion.comments[commentIndex];
-
-    if (comment.likes.includes(userId)) {
-      comment.likes = comment.likes.filter((id) => id.toString() !== userId);
-      await discussion.save();
-      res.status(200).json(discussion);
-    } else {
-      res.status(400).json({ error: "You have not liked this comment" });
+    if (!comment) {
+      return res.status(404).json({ error: "Comment not found" });
     }
+
+    const newReply = {
+      text,
+      user: userId,
+      likes: [],
+    };
+
+    comment.replies = comment.replies || [];
+    comment.replies.push(newReply);
+
+    await discussion.save();
+
+    res.status(200).json(newReply); // Return the new reply object
   } catch (err) {
+    console.error(err.message);
     res.status(400).json({ error: err.message });
   }
 };
