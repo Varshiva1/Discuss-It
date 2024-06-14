@@ -1,30 +1,30 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 
 function Login({ setIsAuthenticated }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState(''); // State for error message
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); // State for error message
   const navigate = useNavigate();
 
-
-
   const handleLogin = async (e) => {
-
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/login', { email, password });
-      console.log("🚀 ~ handleLogin ~ response:", response.data)
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('email', response.data.email);
-      localStorage.setItem('name', response.data.name);
-      localStorage.setItem('id', response.data.id);
+      const response = await axios.post("http://localhost:5000/api/login", {
+        email,
+        password,
+      });
+      console.log("🚀 ~ handleLogin ~ response:", response.data);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("email", response.data.email);
+      localStorage.setItem("name", response.data.name);
+      localStorage.setItem("id", response.data.id);
       setIsAuthenticated(true);
-      navigate('/dashboard'); // Redirect to the dashboard page
+      navigate("/users"); // Redirect to the users list page
     } catch (error) {
       console.error(error);
-      setErrorMessage('Invalid email or password'); // Set error message on failure
+      setErrorMessage("Invalid email or password"); // Set error message on failure
     }
   };
 
@@ -72,7 +72,7 @@ function Login({ setIsAuthenticated }) {
           </button>
         </form>
         <p className="mt-4 text-center">
-          Don't have an account?{' '}
+          Don't have an account?{" "}
           <Link to="/signup" className="text-blue-500 hover:underline">
             Signup
           </Link>

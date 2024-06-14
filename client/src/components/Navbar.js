@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function Navbar({ isAuthenticated }) {
-  const [userName, setUserName] = useState('');
+  const [userName, setUserName] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (token) {
-          const response = await axios.get('http://localhost:5000/api/user', {
+          const response = await axios.get("http://localhost:5000/api/user", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -29,16 +29,12 @@ function Navbar({ isAuthenticated }) {
   }, [isAuthenticated]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('name');
-    localStorage.removeItem('email');
-    localStorage.removeItem('id');
-    navigate('/login');
+    localStorage.clear();
+    navigate("/login");
   };
-  const name = localStorage.getItem('name');
+  const name = localStorage.getItem("name");
   return (
     <nav className="bg-gray-800 py-4">
-
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-white font-bold text-xl">
           Welcome! {name}
@@ -50,7 +46,10 @@ function Navbar({ isAuthenticated }) {
             </Link>
           </li>
           <li>
-            <Link to="/create-discussion" className="text-white hover:text-gray-300">
+            <Link
+              to="/create-discussion"
+              className="text-white hover:text-gray-300"
+            >
               Create Discussion
             </Link>
           </li>
@@ -62,7 +61,10 @@ function Navbar({ isAuthenticated }) {
           {isAuthenticated && (
             <>
               <li>
-                <button onClick={handleLogout} className="text-white hover:text-gray-300">
+                <button
+                  onClick={handleLogout}
+                  className="text-white hover:text-gray-300"
+                >
                   Logout
                 </button>
               </li>

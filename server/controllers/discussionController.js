@@ -1,5 +1,5 @@
-import Discussion from '../models/Discussion.js';
-import { v4 as uuidv4 } from 'uuid';
+import Discussion from "../models/Discussion.js";
+import { v4 as uuidv4 } from "uuid";
 
 // Create Discussion
 export const createDiscussion = async (req, res) => {
@@ -9,7 +9,7 @@ export const createDiscussion = async (req, res) => {
 
     let image = null;
     if (req.file) {
-      image = req.file.buffer.toString('base64');
+      image = req.file.buffer.toString("base64");
     }
 
     const newDiscussion = await Discussion.create({
@@ -20,7 +20,7 @@ export const createDiscussion = async (req, res) => {
       user: userId,
       likes: [],
       comments: [],
-      viewCount: 0
+      viewCount: 0,
     });
     res.status(201).json(newDiscussion);
   } catch (err) {
@@ -29,18 +29,17 @@ export const createDiscussion = async (req, res) => {
   }
 };
 
-
 // Fetch comments based on discussion ID
 export const getCommentsByDiscussionId = async (req, res) => {
   const { discussionId } = req.params;
   try {
     const discussion = await Discussion.findOne({ discussionId });
     if (!discussion) {
-      return res.status(404).json({ message: 'Discussion not found' });
+      return res.status(404).json({ message: "Discussion not found" });
     }
     res.status(200).json(discussion.comments);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching comments', error });
+    res.status(500).json({ message: "Error fetching comments", error });
   }
 };
 
@@ -53,7 +52,7 @@ export const updateDiscussion = async (req, res) => {
     let updateData = { text, hashTags };
 
     if (req.file) {
-      updateData.image = req.file.buffer.toString('base64');
+      updateData.image = req.file.buffer.toString("base64");
     }
 
     const updatedDiscussion = await Discussion.findByIdAndUpdate(
@@ -71,7 +70,7 @@ export const updateDiscussion = async (req, res) => {
 export const deleteDiscussion = async (req, res) => {
   try {
     await Discussion.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'Discussion deleted' });
+    res.status(200).json({ message: "Discussion deleted" });
   } catch (err) {
     console.log("🚀 ~ deleteDiscussion ~ err:", err);
     res.status(400).json({ error: err.message });
@@ -92,7 +91,9 @@ export const getAllDiscussions = async (req, res) => {
 // Get Discussions by Tags
 export const getDiscussionsByTags = async (req, res) => {
   try {
-    const discussions = await Discussion.find({ hashTags: { $in: req.query.tags } });
+    const discussions = await Discussion.find({
+      hashTags: { $in: req.query.tags },
+    });
     res.status(200).json(discussions);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -102,7 +103,9 @@ export const getDiscussionsByTags = async (req, res) => {
 // Get Discussions by Text
 export const getDiscussionsByText = async (req, res) => {
   try {
-    const discussions = await Discussion.find({ text: { $regex: req.query.text, $options: 'i' } });
+    const discussions = await Discussion.find({
+      text: { $regex: req.query.text, $options: "i" },
+    });
     res.status(200).json(discussions);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -120,7 +123,7 @@ export const likeDiscussion = async (req, res) => {
       await discussion.save();
       res.status(200).json(discussion);
     } else {
-      res.status(400).json({ error: 'You have already liked this discussion' });
+      res.status(400).json({ error: "You have already liked this discussion" });
     }
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -134,11 +137,13 @@ export const unlikeDiscussion = async (req, res) => {
     const userId = req.body.userId;
 
     if (discussion.likes.includes(userId)) {
-      discussion.likes = discussion.likes.filter((id) => id.toString() !== userId);
+      discussion.likes = discussion.likes.filter(
+        (id) => id.toString() !== userId
+      );
       await discussion.save();
       res.status(200).json(discussion);
     } else {
-      res.status(400).json({ error: 'You have not liked this discussion' });
+      res.status(400).json({ error: "You have not liked this discussion" });
     }
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -179,7 +184,7 @@ export const likeComment = async (req, res) => {
       await discussion.save();
       res.status(200).json(discussion);
     } else {
-      res.status(400).json({ error: 'You have already liked this comment' });
+      res.status(400).json({ error: "You have already liked this comment" });
     }
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -200,7 +205,7 @@ export const unlikeComment = async (req, res) => {
       await discussion.save();
       res.status(200).json(discussion);
     } else {
-      res.status(400).json({ error: 'You have not liked this comment' });
+      res.status(400).json({ error: "You have not liked this comment" });
     }
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -216,13 +221,13 @@ export const updateComment = async (req, res) => {
     const discussion = await Discussion.findById(discussionId);
 
     if (!discussion) {
-      return res.status(404).json({ error: 'Discussion not found' });
+      return res.status(404).json({ error: "Discussion not found" });
     }
 
     const commentToUpdate = discussion.comments.id(commentId);
 
     if (!commentToUpdate) {
-      return res.status(404).json({ error: 'Comment not found' });
+      return res.status(404).json({ error: "Comment not found" });
     }
 
     commentToUpdate.text = text;
