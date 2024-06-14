@@ -170,41 +170,41 @@ export const commentOnDiscussion = async (req, res) => {
 };
 
 
-// Reply to Comment
-export const replyToComment = async (req, res) => {
-  try {
-    const { discussionId, commentId } = req.params;
-    const { text, userId } = req.body;
+// // Reply to Comment
+// export const replyToComment = async (req, res) => {
+//   try {
+//     const { discussionId, commentId } = req.params;
+//     const { text, userId } = req.body;
 
-    const discussion = await Discussion.findById(discussionId);
+//     const discussion = await Discussion.findById(discussionId);
 
-    if (!discussion) {
-      return res.status(404).json({ error: "Discussion not found" });
-    }
+//     if (!discussion) {
+//       return res.status(404).json({ error: "Discussion not found" });
+//     }
 
-    const comment = discussion.comments.id(commentId);
+//     const comment = discussion.comments.id(commentId);
 
-    if (!comment) {
-      return res.status(404).json({ error: "Comment not found" });
-    }
+//     if (!comment) {
+//       return res.status(404).json({ error: "Comment not found" });
+//     }
 
-    const newReply = {
-      text,
-      user: userId,
-      likes: [],
-    };
+//     const newReply = {
+//       text,
+//       user: userId,
+//       likes: [],
+//     };
 
-    comment.replies = comment.replies || [];
-    comment.replies.push(newReply);
+//     comment.replies = comment.replies || [];
+//     comment.replies.push(newReply);
 
-    await discussion.save();
+//     await discussion.save();
 
-    res.status(200).json(newReply); // Return the new reply object
-  } catch (err) {
-    console.error(err.message);
-    res.status(400).json({ error: err.message });
-  }
-};
+//     res.status(200).json(newReply); // Return the new reply object
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(400).json({ error: err.message });
+//   }
+// };
 
 // Update Comment
 export const updateComment = async (req, res) => {
@@ -250,10 +250,18 @@ export const deleteComment = async (req, res) => {
 // Increment View Count
 export const incrementViewCount = async (req, res) => {
   try {
-    const discussion = await Discussion.findById(req.params.id);
-    discussion.viewCount++;
+    const discussionId = req.params.id;
+    const discussion = await Discussion.findById(discussionId);
+
+    if (!discussion) {
+      return res.status(404).json({ error: 'Discussion not found' });
+    }
+
+    // Increment view count
+    discussion.viewCount = discussion.viewCount + 1;
     await discussion.save();
-    res.status(200).json(discussion);
+
+    res.status(200).json({ viewCount: discussion.viewCount });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

@@ -46,7 +46,6 @@ function DiscussionList() {
         console.error(error);
       }
     };
-
     const fetchViewCounts = async () => {
       try {
         const viewCountsData = {};
@@ -62,7 +61,7 @@ function DiscussionList() {
 
     fetchLikedDiscussions();
     fetchViewCounts();
-  }, [discussions, userId]);
+  }, [discussions,userId]);
 
   const handleSearchTagsChange = (e) => {
     setSearchTags(e.target.value);
@@ -107,20 +106,52 @@ function DiscussionList() {
       console.error(error);
     }
   };
-
   const handleLikeDiscussion = async (discussionId) => {
     try {
-      console.log("here");
+      // Assume userId is retrieved from localStorage or another source
+      const userId = localStorage.getItem('id');
+  
+      // Increment view count
+      await axios.post(`http://localhost:5000/api/${discussionId}/view`);
+  
+      // Like the discussion
       const response = await axios.post(`http://localhost:5000/api/likeDiscussion/${discussionId}/${userId}`);
-      if (response.data.liked) {
-        setLikedDiscussions([...likedDiscussions, discussionId]);
-      } else {
-        setLikedDiscussions(likedDiscussions.filter((id) => id !== discussionId));
-      }
+      const updatedDiscussion = response.data;
+  
+      // Update viewCounts state to reflect the updated view count
+      setViewCounts((prevViewCounts) => ({
+        ...prevViewCounts,
+        [discussionId]: prevViewCounts[discussionId] ? prevViewCounts[discussionId] + 1 : 1,
+      }));
+  
+      // Update likedDiscussions state based on the current liked status
+      setLikedDiscussions((prevLikedDiscussions) => {
+        if (updatedDiscussion.likes.includes(userId)) {
+          // Add the discussionId to likedDiscussions if user liked the discussion
+          if (!prevLikedDiscussions.includes(discussionId)) {
+            return [...prevLikedDiscussions, discussionId];
+          }
+        } else {
+          // Remove the discussionId from likedDiscussions if user unliked the discussion
+          return prevLikedDiscussions.filter((id) => id !== discussionId);
+        }
+        return prevLikedDiscussions; // Return the previous state if no change needed
+      });
+  
+      // Update discussions state to reflect the updated like status
+      setDiscussions((prevDiscussions) =>
+        prevDiscussions.map((d) => (d._id === discussionId ? updatedDiscussion : d))
+      );
     } catch (error) {
-      console.error(error);
-    }
-  };
+      console.error('Error liking discussion:', error);
+    }
+  };
+  
+  
+  
+  
+  
+  
 
   const handleCommentDiscussion = async (discussionId) => {
     try {
@@ -143,47 +174,6 @@ function DiscussionList() {
     }
   };
 
-  const handleReplyComment = async (discussionId, commentId, reply) => {
-    try {
-      const replyResponse = await axios.post(`http://localhost:5000/api/reply/${discussionId}/${commentId}`, { reply, userId });
-
-      setDiscussions((prevDiscussions) =>
-        prevDiscussions.map((d) =>
-          d._id === discussionId
-            ? {
-                ...d,
-                comments: d.comments.map((c) =>
-                  c._id === commentId ? { ...c, replies: [...(c.replies || []), replyResponse.data] } : c
-                ),
-              }
-            : d
-        )
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // const handleLikeComment = async (discussionId, commentId) => {
-  //   try {
-  //     const likeResponse = await axios.post(`http://localhost:5000/api/${discussionId}/comment/${commentId}/like`);
-
-  //     setDiscussions((prevDiscussions) =>
-  //       prevDiscussions.map((d) =>
-  //         d._id === discussionId
-  //           ? {
-  //               ...d,
-  //               comments: d.comments.map((c) =>
-  //                 c._id === commentId ? { ...c, likedBy: likeResponse.data.likedBy } : c
-  //               ),
-  //             }
-  //           : d
-  //       )
-  //     );
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
 
   const handleDeleteComment = async (discussionId, commentId) => {
     try {
@@ -296,8 +286,9 @@ function DiscussionList() {
                   <strong>Created On:</strong> {new Date(discussion.createdOn).toLocaleString()}
                 </p>
                 <p>
-                  <strong>View Count:</strong> {viewCounts[discussion._id]}
-                </p>
+  <strong>View Count:</strong> {viewCounts[discussion._id] || 1}
+</p>
+
                 <div className="mt-4 flex justify-between items-center">
                   <div>
                     <button
@@ -368,12 +359,12 @@ function DiscussionList() {
                         <div>
                           <p>{comment.text}</p>
                           <div className="flex items-center space-x-2 mt-1">
-                            <button
+                            {/* <button
                               onClick={() => handleReplyComment(discussion._id, comment._id, prompt('Enter your reply:'))}
                               className="text-blue-500 hover:text-blue-600 transition-colors duration-300"
                             >
                               <FaReply className="text-xl" />
-                            </button>
+                            </button> */}
                             <button
                               onClick={() => handleDeleteComment(discussion._id, comment._id)}
                               className="text-red-500 hover:text-red-600 transition-colors duration-300"

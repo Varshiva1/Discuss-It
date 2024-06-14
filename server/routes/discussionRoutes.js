@@ -29,7 +29,7 @@ router.delete("/:id", deleteDiscussion);
 router.get("/all", getAllDiscussions);
 router.get("/tags", getDiscussionsByTags);
 router.get("/text", getDiscussionsByText);
-router.post("/:id/unlike", unlikeDiscussion);
+router.post("'/unlikeDiscussion/:id/:userId'", unlikeDiscussion);
 router.post("/:id/comment", commentOnDiscussion);
 router.post("/:discussionId/comment/:commentId", updateComment);
 router.delete("/:discussionId/comment/:commentId", deleteComment);
