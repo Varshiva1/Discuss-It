@@ -64,6 +64,52 @@ function UserList() {
     }
   };
 
+  const handleFollow = async (userToFollowId) => {
+    try {
+      await axios.post('http://localhost:5000/api/follow', {
+        currentUserId: userId,
+        userToFollowId,
+      });
+      const updatedUsers = users.map((user) => {
+        if (user._id === userToFollowId) {
+          return { ...user, followers: [...user.followers, userId] };
+        } else if (user._id === userId) {
+          return { ...user, following: [...user.following, userToFollowId] };
+        }
+        return user;
+      });
+      setUsers(updatedUsers);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleUnfollow = async (userToUnfollowId) => {
+    try {
+      await axios.post('http://localhost:5000/api/unfollow', {
+        currentUserId: userId,
+        userToUnfollowId,
+      });
+      const updatedUsers = users.map((user) => {
+        if (user._id === userToUnfollowId) {
+          return {
+            ...user,
+            followers: user.followers.filter((followerId) => followerId !== userId),
+          };
+        } else if (user._id === userId) {
+          return {
+            ...user,
+            following: user.following.filter((followingId) => followingId !== userToUnfollowId),
+          };
+        }
+        return user;
+      });
+      setUsers(updatedUsers);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4">
       <div className="my-8">
@@ -101,10 +147,17 @@ function UserList() {
                       Delete
                     </button>
                   </>
+                ) : user.followers.includes(userId) ? (
+                  <button
+                    onClick={() => handleUnfollow(user._id)}
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors duration-300"
+                  >
+                    Unfollow
+                  </button>
                 ) : (
                   <button
-                    onClick={() => handleEdit(user)}
-                    className="bg-blue-500 text-white px-3 py-1 rounded mr-2 hover:bg-blue-600 transition-colors duration-300"
+                    onClick={() => handleFollow(user._id)}
+                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-300"
                   >
                     Follow
                   </button>
@@ -143,28 +196,28 @@ function UserList() {
                   value={mobileNo}
                   onChange={(e) => setMobileNo(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  onClick={handleSave}
-                  className="bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-600 transition-colors duration-300"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() => setEditUser(null)}
-                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors duration-300"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+/>
+</div>
+<div className="flex justify-end">
+  <button
+    onClick={handleSave}
+    className="bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-600 transition-colors duration-300"
+  >
+    Save
+  </button>
+  <button
+    onClick={() => setEditUser(null)}
+    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors duration-300"
+  >
+    Cancel
+  </button>
+</div>
+</div>
+</div>
+)}
+</div>
+</div>
+);
 }
 
 export default UserList;

@@ -124,6 +124,7 @@ export const searchUserByName = async (req, res) => {
 };
 
 // Follow User
+
 export const followUser = async (req, res) => {
   try {
     const currentUser = await User.findById(req.body.currentUserId);
@@ -132,19 +133,16 @@ export const followUser = async (req, res) => {
     if (!currentUser.following.includes(req.body.userToFollowId)) {
       currentUser.following.push(req.body.userToFollowId);
       userToFollow.followers.push(req.body.currentUserId);
+      await currentUser.save();
+      await userToFollow.save();
+      res.status(200).json({ message: 'User followed successfully' });
     } else {
-      return res.status(400).json({ error: 'You are already following this user' });
+      res.status(400).json({ error: 'You are already following this user' });
     }
-
-    await currentUser.save();
-    await userToFollow.save();
-
-    res.status(200).json({ message: 'User followed successfully' });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
-
 // Unfollow User
 export const unfollowUser = async (req, res) => {
   try {
