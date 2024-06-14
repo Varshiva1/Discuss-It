@@ -1,5 +1,3 @@
-// testjs
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaHeart, FaEdit, FaTrash, FaComment, FaReply, FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
@@ -125,11 +123,17 @@ function DiscussionList() {
 
   const handleCommentDiscussion = async (discussionId) => {
     try {
-      await axios.post(`http://localhost:5000/api/${discussionId}/comment`, { text: newComment[discussionId], userId });
-      const response = await axios.get(`http://localhost:5000/api/comments/${discussionId}`);
-      setDiscussions(prevDiscussions =>
-        prevDiscussions.map(d =>
-          d._id === discussionId ? { ...d, comments: response.data } : d
+      const newCommentText = newComment[discussionId];
+      const commentResponse = await axios.post(`http://localhost:5000/api/${discussionId}/comment`, { text: newCommentText, userId });
+  
+      setDiscussions((prevDiscussions) =>
+        prevDiscussions.map((d) =>
+          d._id === discussionId
+            ? {
+                ...d,
+                comments: [...(d.comments || []), commentResponse.data],
+              }
+            : d
         )
       );
       setNewComment({ ...newComment, [discussionId]: '' });
@@ -137,63 +141,82 @@ function DiscussionList() {
       console.error(error);
     }
   };
-  
+
   const handleReplyComment = async (discussionId, commentId, reply) => {
     try {
-      await axios.post(`http://localhost:5000/api/reply/${discussionId}/${commentId}`, { reply, userId });
-      const response = await axios.get(`http://localhost:5000/api/comments/${discussionId}`);
-      setDiscussions(prevDiscussions =>
-        prevDiscussions.map(d =>
-          d._id === discussionId ? { ...d, comments: response.data } : d
+      const replyResponse = await axios.post(`http://localhost:5000/api/reply/${discussionId}/${commentId}`, { reply, userId });
+
+      setDiscussions((prevDiscussions) =>
+        prevDiscussions.map((d) =>
+          d._id === discussionId
+            ? {
+                ...d,
+                comments: d.comments.map((c) =>
+                  c._id === commentId ? { ...c, replies: [...(c.replies || []), replyResponse.data] } : c
+                ),
+              }
+            : d
         )
       );
     } catch (error) {
       console.error(error);
     }
   };
-  
+
   const handleLikeComment = async (discussionId, commentId) => {
     try {
-      await axios.post(`http://localhost:5000/api/${discussionId}/comment/${commentId}/like`);
-      const response = await axios.get(`http://localhost:5000/api/comments/${discussionId}`);
-      setDiscussions(prevDiscussions =>
-        prevDiscussions.map(d =>
-          d._id === discussionId ? { ...d, comments: response.data } : d
+      const likeResponse = await axios.post(`http://localhost:5000/api/${discussionId}/comment/${commentId}/like`);
+
+      setDiscussions((prevDiscussions) =>
+        prevDiscussions.map((d) =>
+          d._id === discussionId
+            ? {
+                ...d,
+                comments: d.comments.map((c) =>
+                  c._id === commentId ? { ...c, likedBy: likeResponse.data.likedBy } : c
+                ),
+              }
+            : d
         )
       );
     } catch (error) {
       console.error(error);
     }
   };
-  
+
   const handleDeleteComment = async (discussionId, commentId) => {
     try {
       await axios.delete(`http://localhost:5000/api/${discussionId}/comment/${commentId}`);
-      setDiscussions(prevDiscussions =>
-        prevDiscussions.map(d =>
-          d._id === discussionId ? { ...d, comments: d.comments.filter(c => c._id !== commentId) } : d
+
+      setDiscussions((prevDiscussions) =>
+        prevDiscussions.map((d) =>
+          d._id === discussionId ? { ...d, comments: d.comments.filter((c) => c._id !== commentId) } : d
         )
       );
     } catch (error) {
       console.error(error);
     }
   };
-  
+
   const handleEditComment = async (discussionId, commentId, newCommentText) => {
     try {
-      await axios.post(`http://localhost:5000/api/${discussionId}/comment/${commentId}`, { text: newCommentText });
-      const response = await axios.get(`http://localhost:5000/api/comments/${discussionId}`);
-      setDiscussions(prevDiscussions =>
-        prevDiscussions.map(d =>
-          d._id === discussionId ? { ...d, comments: response.data } : d
+      const editResponse = await axios.post(`http://localhost:5000/api/${discussionId}/comment/${commentId}`, { text: newCommentText });
+  
+      setDiscussions((prevDiscussions) =>
+        prevDiscussions.map((d) =>
+          d._id === discussionId
+            ? {
+                ...d,
+                comments: d.comments.map((c) => (c._id === commentId ? { ...c, text: newCommentText } : c)),
+              }
+            : d
         )
       );
+      setEditComment({});
     } catch (error) {
       console.error(error);
     }
   };
-  
-
   return (
     <div className="container mx-auto my-8">
       <h2 className="text-2xl font-bold mb-4 text-center">Discussion List</h2>
@@ -227,7 +250,6 @@ function DiscussionList() {
                   type="text"
                   value={newTags}
                   onChange={(e) => setNewTags(e.target.value)}
-                  placeholder="Enter tags separated by commas"
                   className="w-full px-3 py-2 border border-gray-300 rounded mb-2"
                 />
                 <input
@@ -345,12 +367,6 @@ function DiscussionList() {
                         <div>
                           <p>{comment.text}</p>
                           <div className="flex items-center space-x-2 mt-1">
-                            <button
-                              onClick={() => handleLikeComment(discussion._id, comment._id)}
-                              className="text-gray-500 hover:text-green-500 transition-colors duration-300"
-                            >
-                              {comment.likedBy && comment.likedBy.includes(userId) ? <FaThumbsUp /> : <FaThumbsDown />}
-                            </button>
                             <button
                               onClick={() => handleReplyComment(discussion._id, comment._id, prompt('Enter your reply:'))}
                               className="text-blue-500 hover:text-blue-600 transition-colors duration-300"

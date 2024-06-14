@@ -164,7 +164,7 @@ export const commentOnDiscussion = async (req, res) => {
 
     discussion.comments.push(newComment);
     await discussion.save();
-    res.status(200).json(discussion);
+    res.status(200).json(newComment); // Return the new comment object instead of the entire discussion
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
