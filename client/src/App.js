@@ -7,7 +7,6 @@ import {
 } from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
-// import Dashboard from "./components/Dashboard";
 import Navbar from "./components/Navbar";
 import UserList from "./components/UserList";
 import CreateDiscussion from "./components/CreateDiscussion";
@@ -19,7 +18,7 @@ function App() {
 
   const PrivateRoutes = () => (
     <>
-      <Navbar isAuthenticated={isAuthenticated} />
+      <Navbar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
       <Routes>
         <Route path="/users" element={<UserList />} />
         <Route path="/create-discussion" element={<CreateDiscussion />} />
@@ -27,6 +26,10 @@ function App() {
       </Routes>
     </>
   );
+
+  useEffect(() => {
+    setIsAuthenticated(!!localStorage.getItem("token"));
+  }, []);
 
   return (
     <Router>

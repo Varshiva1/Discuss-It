@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-function Navbar({ isAuthenticated }) {
+function Navbar({ isAuthenticated, setIsAuthenticated }) {
   const [userName, setUserName] = useState("");
   const navigate = useNavigate();
 
@@ -30,9 +30,12 @@ function Navbar({ isAuthenticated }) {
 
   const handleLogout = () => {
     localStorage.clear();
+    setIsAuthenticated(false); // Update isAuthenticated state
     navigate("/login");
   };
+
   const name = localStorage.getItem("name");
+
   return (
     <nav className="bg-gray-800 py-4">
       <div className="container mx-auto flex justify-between items-center">
