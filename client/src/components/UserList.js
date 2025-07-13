@@ -16,9 +16,9 @@ function UserList() {
       try {
         let response;
         if (searchName) {
-          response = await axios.get(`http://localhost:5000/api/users/search?name=${searchName}`);
+          response = await axios.get(`http://localhost:5001/api/users/search?name=${searchName}`);
         } else {
-          response = await axios.get('http://localhost:5000/api/users');
+          response = await axios.get('http://localhost:5001/api/users');
         }
         setUsers(response.data);
       } catch (error) {
@@ -35,7 +35,7 @@ function UserList() {
 
   const handleDelete = async (userId) => {
     try {
-      await axios.post(`http://localhost:5000/api/users/delete/${userId}`);
+      await axios.post(`http://localhost:5001/api/users/delete/${userId}`);
       setUsers(users.filter((user) => user._id !== userId));
     } catch (error) {
       console.error(error);
@@ -56,7 +56,7 @@ function UserList() {
         password,
         mobileNo,
       };
-      const response = await axios.post(`http://localhost:5000/api/users/update/${editUser._id}`, updatedUser);
+      const response = await axios.post(`http://localhost:5001/api/users/update/${editUser._id}`, updatedUser);
       setUsers(users.map((user) => (user._id === editUser._id ? response.data : user)));
       setEditUser(null);
     } catch (error) {
@@ -66,7 +66,7 @@ function UserList() {
 
   const handleFollow = async (userToFollowId) => {
     try {
-      await axios.post('http://localhost:5000/api/follow', {
+      await axios.post('http://localhost:5001/api/follow', {
         currentUserId: userId,
         userToFollowId,
       });
@@ -86,7 +86,7 @@ function UserList() {
 
   const handleUnfollow = async (userToUnfollowId) => {
     try {
-      await axios.post('http://localhost:5000/api/unfollow', {
+      await axios.post('http://localhost:5001/api/unfollow', {
         currentUserId: userId,
         userToUnfollowId,
       });

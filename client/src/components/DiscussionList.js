@@ -22,11 +22,11 @@ function DiscussionList() {
       try {
         let response;
         if (searchTags) {
-          response = await axios.get(`http://localhost:5000/api/tags?tags=${searchTags}`);
+          response = await axios.get(`http://localhost:5001/api/tags?tags=${searchTags}`);
         } else if (searchText) {
-          response = await axios.get(`http://localhost:5000/api/text?text=${searchText}`);
+          response = await axios.get(`http://localhost:5001/api/text?text=${searchText}`);
         } else {
-          response = await axios.get('http://localhost:5000/api/all');
+          response = await axios.get('http://localhost:5001/api/all');
         }
         setDiscussions(response.data);
       } catch (error) {
@@ -40,7 +40,7 @@ function DiscussionList() {
   useEffect(() => {
     const fetchLikedDiscussions = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/liked-discussions/${userId}`);
+        const response = await axios.get(`http://localhost:5001/api/liked-discussions/${userId}`);
         setLikedDiscussions(response.data);
       } catch (error) {
         console.error(error);
@@ -50,7 +50,7 @@ function DiscussionList() {
       try {
         const viewCountsData = {};
         for (const discussion of discussions) {
-          const response = await axios.get(`http://localhost:5000/api/view-count/${discussion._id}`);
+          const response = await axios.get(`http://localhost:5001/api/view-count/${discussion._id}`);
           viewCountsData[discussion._id] = response.data.viewCount;
         }
         setViewCounts(viewCountsData);
@@ -73,7 +73,7 @@ function DiscussionList() {
 
   const handleDeleteDiscussion = async (discussionId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/${discussionId}`);
+      await axios.delete(`http://localhost:5001/api/${discussionId}`);
       setDiscussions(discussions.filter((discussion) => discussion._id !== discussionId));
     } catch (error) {
       console.error(error);
@@ -94,7 +94,7 @@ function DiscussionList() {
       formData.append('text', newText);
       formData.append('hashTags', newTags.split(',').map((tag) => tag.trim()).join(','));
 
-      const response = await axios.put(`http://localhost:5000/api/${editDiscussion._id}`, formData, {
+      const response = await axios.put(`http://localhost:5001/api/${editDiscussion._id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -112,10 +112,10 @@ function DiscussionList() {
       const userId = localStorage.getItem('id');
   
       // Increment view count
-      await axios.post(`http://localhost:5000/api/${discussionId}/view`);
+      await axios.post(`http://localhost:5001/api/${discussionId}/view`);
   
       // Like the discussion
-      const response = await axios.post(`http://localhost:5000/api/likeDiscussion/${discussionId}/${userId}`);
+      const response = await axios.post(`http://localhost:5001/api/likeDiscussion/${discussionId}/${userId}`);
       const updatedDiscussion = response.data;
   
       // Update viewCounts state to reflect the updated view count
@@ -156,7 +156,7 @@ function DiscussionList() {
   const handleCommentDiscussion = async (discussionId) => {
     try {
       const newCommentText = newComment[discussionId];
-      const commentResponse = await axios.post(`http://localhost:5000/api/${discussionId}/comment`, { text: newCommentText, userId });
+      const commentResponse = await axios.post(`http://localhost:5001/api/${discussionId}/comment`, { text: newCommentText, userId });
   
       setDiscussions((prevDiscussions) =>
         prevDiscussions.map((d) =>
@@ -177,7 +177,7 @@ function DiscussionList() {
 
   const handleDeleteComment = async (discussionId, commentId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/${discussionId}/comment/${commentId}`);
+      await axios.delete(`http://localhost:5001/api/${discussionId}/comment/${commentId}`);
 
       setDiscussions((prevDiscussions) =>
         prevDiscussions.map((d) =>
@@ -191,7 +191,7 @@ function DiscussionList() {
 
   const handleEditComment = async (discussionId, commentId, newCommentText) => {
     try {
-      const editResponse = await axios.post(`http://localhost:5000/api/${discussionId}/comment/${commentId}`, { text: newCommentText });
+      const editResponse = await axios.post(`http://localhost:5001/api/${discussionId}/comment/${commentId}`, { text: newCommentText });
   
       setDiscussions((prevDiscussions) =>
         prevDiscussions.map((d) =>

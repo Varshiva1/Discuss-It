@@ -17,7 +17,7 @@ function CreateDiscussion() {
       formData.append('hashTags', hashTags.split(',').map((tag) => tag.trim()));
 
       // Make a request to your API to create a new discussion
-      const response = await axios.post('http://localhost:5000/api/creatediscussion', formData);
+      const response = await axios.post('http://localhost:5001/api/creatediscussion', formData);
       console.log(response.data); // Assuming API returns relevant data upon successful creation
 
       // Alert message on successful creation

@@ -18,7 +18,7 @@ function Signup({ setIsAuthenticated }) {
       return;
     }
     try {
-      const response = await axios.post('http://localhost:5000/api/signup', { name, mobileNo, email, password });
+      const response = await axios.post('http://localhost:5001/api/signup', { name, mobileNo, email, password });
       localStorage.setItem('token', response.data.token);
       setIsAuthenticated(true);
       navigate('/users'); // Redirect to the dashboard page
