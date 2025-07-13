@@ -266,3 +266,31 @@ export const incrementViewCount = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+// Like Comment
+export const likeComment = async (req, res) => {
+  try {
+    const { discussionId, commentId } = req.params;
+    const { userId } = req.body;
+
+    const discussion = await Discussion.findById(discussionId);
+    if (!discussion) {
+      return res.status(404).json({ error: "Discussion not found" });
+    }
+
+    const comment = discussion.comments.id(commentId);
+    if (!comment) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+
+    if (!comment.likes.includes(userId)) {
+      comment.likes.push(userId);
+      await discussion.save();
+      res.status(200).json(comment);
+    } else {
+      res.status(400).json({ error: "You already liked this comment" });
+    }
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};

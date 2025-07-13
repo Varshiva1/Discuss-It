@@ -11,7 +11,7 @@ import {
   unlikeDiscussion,
   commentOnDiscussion,
   likeComment,
-  unlikeComment,
+  // unlikeComment,
   updateComment,
   deleteComment,
   incrementViewCount,
@@ -35,6 +35,6 @@ router.post("/:discussionId/comment/:commentId", updateComment);
 router.delete("/:discussionId/comment/:commentId", deleteComment);
 router.post("/:id/view", incrementViewCount);
 router.get("/comments/:discussionId", getCommentsByDiscussionId);
-router.post('/likeDiscussion/:id/:userId', likeDiscussion);
-router.post("/:discussionId/comment/:commentId/reply", replyToComment);
+// router.post('/likeDiscussion/:id/:userId', likeDiscussion);
+// router.post("/:discussionId/comment/:commentId/reply", replyToComment);
 export default router;
